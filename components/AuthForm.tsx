@@ -19,6 +19,8 @@ import { Button } from "@/components/ui/button";
 
 import { signIn, signUp } from "@/lib/actions/auth.action";
 import FormField from "./FormField";
+import { NextApiRequest, NextApiResponse } from "next";
+// Removed unused import
 
 const authFormSchema = (type: FormType) => {
   return z.object({
@@ -75,16 +77,23 @@ const AuthForm = ({ type }: { type: FormType }) => {
           password
         );
 
-        const idToken = await userCredential.user.getIdToken();
+        const idToken = await userCredential.user?.getIdToken();
         if (!idToken) {
           toast.error("Sign in Failed. Please try again.");
           return;
         }
 
-        await signIn({
+        const response = await signIn({
           email,
           idToken,
         });
+
+        console.log("Sign-in response:", response);
+
+        if (!response?.success) {
+          toast.error("Sign in Failed. Please try again.");
+          return;
+        }
 
         toast.success("Signed in successfully.");
         router.push("/");
@@ -159,3 +168,18 @@ const AuthForm = ({ type }: { type: FormType }) => {
 };
 
 export default AuthForm;
+
+// Example: Middleware or API route
+export function handler(req: NextApiRequest, res: NextApiResponse): void {
+  if (process.env.NODE_ENV === "development") {
+    // Allow mismatched headers in development
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader(
+      "Access-Control-Allow-Headers",
+      "Content-Type, Authorization"
+    );
+    res.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+  }
+
+  // Your existing logic
+}

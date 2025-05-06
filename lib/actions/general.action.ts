@@ -112,6 +112,10 @@ export async function getLatestInterviews(
 export async function getInterviewsByUserId(
   userId: string
 ): Promise<Interview[] | null> {
+  if (!userId) {
+    throw new Error("Invalid userId: userId cannot be undefined or null.");
+  }
+
   const interviews = await db
     .collection("interviews")
     .where("userId", "==", userId)

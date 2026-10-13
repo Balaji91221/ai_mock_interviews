@@ -32,9 +32,9 @@ Open the local URL printed by Next.js. Configure the required service accounts i
 | Firebase browser client | `NEXT_PUBLIC_FIREBASE_API_KEY`, `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`, `NEXT_PUBLIC_FIREBASE_PROJECT_ID`, `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`, `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`, `NEXT_PUBLIC_FIREBASE_APP_ID`, `NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID` |
 | Firebase Admin | `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY` |
 | Vapi | `NEXT_PUBLIC_VAPI_WEB_TOKEN`, `NEXT_PUBLIC_VAPI_WORKFLOW_ID` |
-| Question and feedback model | Credentials for the `@ai-sdk/google` provider used by the server-side generation code |
+| Question and feedback model | `GOOGLE_GENERATIVE_AI_API_KEY`, used by the [Google provider](https://v4.ai-sdk.dev/providers/ai-sdk-providers/google-generative-ai#provider-instance) |
 
-Firebase requires Authentication and Firestore configuration. The Vapi workflow must match the variables passed by `components/Agent.tsx` and the interview-generation API. A workflow is not provisioned by starting Next.js.
+Firebase requires Authentication and Firestore configuration. The Vapi workflow must match the variables passed by `components/Agent.tsx` and call a reachable `POST /api/vapi/generate` endpoint with `role`, `level`, `techstack`, `type`, `amount`, and `userid`. A workflow is not provisioned by starting Next.js; a hosted Vapi workflow cannot reach a localhost-only API without a configured reachable development or deployment URL.
 
 Keep Firebase Admin credentials on the server. Only provider-designated browser configuration should use the `NEXT_PUBLIC_` prefix.
 
@@ -55,7 +55,8 @@ flowchart LR
   Transcript --> Feedback[Server-side structured generation]
   Feedback --> Model[Google model provider]
   Feedback --> DB[(Firestore)]
-  UI --> Questions[Interview-generation API]
+  UI --> Workflow[Configured Vapi generation workflow]
+  Workflow --> Questions[Interview-generation API]
   Questions --> Model
   Questions --> DB
 ```
